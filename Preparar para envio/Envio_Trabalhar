@@ -1,0 +1,117 @@
+Sub Enviar()
+   
+Application.ScreenUpdating = False
+
+'ocultar colunas do razao
+Planilha2.Select
+Columns("s:u").EntireColumn.Hidden = True
+Range("a1").Select
+
+'ocultar e proteger guias
+    Planilha1.Visible = xlSheetHidden
+    Planilha10.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha10.EnableOutlining = True
+    Planilha11.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha11.EnableOutlining = True
+    'Planilha12.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    'Planilha12.EnableOutlining = True
+    'Planilha13.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    'Planilha13.EnableOutlining = True
+    Planilha14.Visible = xlSheetHidden
+    'Planilha15.Visible = xlSheetHidden
+    Planilha17.Visible = xlSheetHidden
+    'Planilha18.Visible = xlSheetHidden
+    'Planilha19.Visible = xlSheetHidden
+    Planilha2.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha2.EnableOutlining = True
+    Planilha20.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha20.EnableOutlining = True
+    'Planilha22.Visible = xlSheetHidden
+    Planilha23.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha23.EnableOutlining = True
+    Planilha3.Visible = xlSheetHidden
+    Planilha4.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha4.EnableOutlining = True
+    ActiveSheet.Outline.ShowLevels RowLevels:=2
+    Planilha5.Visible = xlSheetHidden
+    'Planilha6.Visible = xlSheetHidden
+    Planilha7.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha7.EnableOutlining = True
+    'Planilha8.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    'Planilha8.EnableOutlining = True
+    Planilha9.Protect Password:="Oz0321", DrawingObjects:=True, Contents:=True, Scenarios:=True _
+        , AllowFiltering:=True, AllowFormattingRows:=True, AllowFormattingColumns:=True, UserInterfaceOnly:=True
+    Planilha9.EnableOutlining = True
+    ActiveSheet.Outline.ShowLevels RowLevels:=2
+
+    ActiveWorkbook.Protect Password:="Oz0321", Structure:=True, Windows:=False
+
+'Application.DisplayFullScreen = True 'tela cheia
+'Application.DisplayFormulaBar = False 'barra de formulas
+'ActiveWindow.DisplayHeadings = False 'cabecalhos
+'ActiveWindow.DisplayGridlines = False ' linhas de grade
+'ActiveWindow.DisplayWorkbookTabs = False 'guias de trabalho
+
+
+'ir para capa
+ActiveWindow.TabRatio = 0.048
+Planilha20.Select
+Range("h3").Select
+
+Application.ScreenUpdating = True
+
+End Sub
+
+
+Sub Trabalhar()
+   
+Application.ScreenUpdating = False
+
+'desfazer algumas acoes de bloqueio
+
+'exebir e desproteger guias
+    ActiveWorkbook.Unprotect Password:="Oz0321"
+    Planilha1.Visible = xlSheetVisible
+    Planilha10.Unprotect Password:="Oz0321"
+    Planilha11.Unprotect Password:="Oz0321"
+    'Planilha12.Unprotect Password:="Oz0321"
+    'Planilha13.Unprotect Password:="Oz0321"
+    Planilha14.Visible = xlSheetVisible
+    'Planilha15.Visible = xlSheetVisible
+    Planilha17.Visible = xlSheetVisible
+    'Planilha18.Visible = xlSheetVisible
+    'Planilha19.Visible = xlSheetVisible
+    Planilha2.Unprotect Password:="Oz0321"
+    Planilha20.Unprotect Password:="Oz0321"
+    'Planilha22.Visible = xlSheetVisible
+    Planilha23.Unprotect Password:="Oz0321"
+    Planilha3.Visible = xlSheetVisible
+    Planilha4.Unprotect Password:="Oz0321"
+    Planilha5.Visible = xlSheetVisible
+    'Planilha6.Visible = xlSheetVisible
+    Planilha7.Unprotect Password:="Oz0321"
+    'Planilha8.Unprotect Password:="Oz0321"
+    Planilha9.Unprotect Password:="Oz0321"
+    
+'razao
+Planilha2.Select
+Columns("s:u").EntireColumn.Hidden = False
+Range("a1").Select
+
+ActiveWindow.TabRatio = 0.7
+Planilha5.Select
+Range("b8").Select
+
+Application.ScreenUpdating = True
+
+End Sub
