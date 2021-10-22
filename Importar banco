@@ -1,0 +1,1033 @@
+Sub Excluir_empresa()
+
+'excluir origem
+
+Application.ScreenUpdating = False
+
+If Planilha5.Range("t12").Value = 0 Then
+
+MsgBox "Não existem valores cadastrados", vbCritical, "Resultado"
+
+Exit Sub
+End If
+
+Dim origem As String
+Dim mes As String
+Dim razao As Range
+
+origem = Planilha5.Range("s12").Value
+mes = Planilha5.Range("d8").Value
+Set razao = Planilha2.Range("a3").CurrentRegion
+
+Planilha2.Select
+Rows("3:100000").Select
+Selection.EntireRow.Hidden = False
+razao.AutoFilter Field:=1, Criteria1:=mes
+razao.AutoFilter Field:=10, Criteria1:=origem
+    
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+    
+Planilha5.Select
+Range("b3").Select
+    
+MsgBox "Valores excluídos com sucesso", vbInformation, "Resultado"
+    
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub Selecao_AVB()
+'seta o caminho para importar o arquivo
+diretorio = Application.GetOpenFilename
+If (diretorio = FALSO) Then
+diretorio = ""
+End If
+Planilha5.Cells(13, 2) = diretorio
+End Sub
+
+Sub Selecao_ARM()
+'seta o caminho para importar o arquivo
+diretorio = Application.GetOpenFilename
+If (diretorio = FALSO) Then
+diretorio = ""
+End If
+Planilha5.Cells(18, 2) = diretorio
+End Sub
+
+Sub Selecao_SLM()
+'seta o caminho para importar o arquivo
+diretorio = Application.GetOpenFilename
+If (diretorio = FALSO) Then
+diretorio = ""
+End If
+Planilha5.Cells(23, 2) = diretorio
+End Sub
+
+Sub Selecao_ACG()
+'seta o caminho para importar o arquivo
+diretorio = Application.GetOpenFilename
+If (diretorio = FALSO) Then
+diretorio = ""
+End If
+Planilha5.Cells(28, 2) = diretorio
+End Sub
+
+Sub Selecao_MCT()
+'seta o caminho para importar o arquivo
+diretorio = Application.GetOpenFilename
+If (diretorio = FALSO) Then
+diretorio = ""
+End If
+Planilha5.Cells(33, 2) = diretorio
+End Sub
+
+Sub Selecao_MAB()
+'seta o caminho para importar o arquivo
+diretorio = Application.GetOpenFilename
+If (diretorio = FALSO) Then
+diretorio = ""
+End If
+Planilha5.Cells(38, 2) = diretorio
+End Sub
+
+Sub Importar_AVB()
+
+Application.ScreenUpdating = False
+
+'verificar quantidade de planilhas abertas
+If (Application.Workbooks.Count > 1) Then
+    MsgBox ("Para seguranca das suas informacoes FECHE as demais planilhas abertas")
+    Exit Sub
+    End If
+
+'Dim razao As Range
+Dim data As String
+data = Planilha5.Range("D8").Value
+
+'PlanilhaX.Unprotect Password:="Oz0321"
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+'limpar dados anteriores se já tiver valores importados
+If Planilha5.Range("a13") > "0" Then
+
+Planilha2.Select
+Range("a2").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Selection.AutoFilter Field:=10, Criteria1:="R_AVB" 'Filtrar origem
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+
+End If
+
+Planilha5.Select
+Range("D8").Copy
+
+'abrir planilha
+Workbooks.Open Filename:=Planilha5.Cells(13, 2)
+Application.DisplayAlerts = False 'desativar alertas
+
+'copiar informacoes do Razao origem
+Sheets("Conta Razão").Select 'seleciona o razao
+Range("ah1").Select
+Selection.PasteSpecial Paste:=xlPasteValues 'colar periodo para o filtro
+
+If ActiveSheet.FilterMode Then
+Range("a1").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+Range("a1").Select
+Selection.AutoFilter
+Selection.AutoFilter Field:=2, Criteria1:=Array( _
+        "A.V.B.CPBIN", "A.V.B.CANIN", "A.V.B.CCORP", "A.V.B.CCBEX", "A.V.B.CCLOV", "A.V.B.CNOP" _
+        , "A.V.B.CTRIN", "A.V.B.CRVEX", "A.V.B.CORCPX"), Operator:=xlFilterValues
+Selection.AutoFilter Field:=5, Criteria1:="<>INDEFINIDO" 'Excluir INDEFINIDO
+Selection.AutoFilter Field:=8, Criteria1:="1.2" 'Filtrar codigo de contas
+Selection.AutoFilter Field:=16, Criteria1:=Range("ah1").Value 'Filtrar periodo
+
+Range("a1:ad1").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+
+'colar dados em apoio
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Planilha6.Visible = xlSheetVisible
+Planilha6.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'copiar AVBCANOP 112 113 114
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+ActiveSheet.AutoFilter.ShowAllData
+Range("a1").Select
+Selection.AutoFilter Field:=2, Criteria1:="A.V.B.CANOP"
+Selection.AutoFilter Field:=4, Criteria1:=Array("112", "113", "114"), Operator:=xlFilterValues
+Selection.AutoFilter Field:=8, Criteria1:="9.3" 'Filtrar codigo de contas
+Selection.AutoFilter Field:=16, Criteria1:=Range("ah1").Value 'Filtrar periodo
+Range("a2:ad2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+
+'colar dados
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Planilha6.Select
+Range("a1").End(xlDown).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'organizar razao
+Columns("A:i").Insert Shift:=xlToRight
+Columns("Y:Y").Cut Destination:=Columns("A:A") 'periodo
+Columns("K:K").Cut Destination:=Columns("B:B") 'cc
+Columns("M:M").Cut Destination:=Columns("C:C") 'cod item contabil
+Columns("N:N").Cut Destination:=Columns("D:D") 'desc item contabil
+Columns("W:W").Cut Destination:=Columns("E:E") 'cod conta
+Columns("X:X").Cut Destination:=Columns("F:F") 'desc da conta
+Columns("AB:AB").Cut Destination:=Columns("G:G") 'historico
+Columns("AH:AH").Cut Destination:=Columns("H:H") 'valor
+Columns("Af:Af").Cut Destination:=Columns("i:i") 'cod clase valor
+Columns("J:AZ").Delete
+
+Range("b1").Select
+Columns("b:b").Replace ".", ""
+Range("e1").Select
+Columns("e:e").Replace ".", ""
+
+'arrumar historico
+Dim hLin As Integer
+hLin = Cells(Rows.Count, 8).End(xlUp).Row + 1
+Range("j2").Select
+ActiveCell.FormulaR1C1 = "=TRIM(RC[-3])"
+Range("j2").Copy
+Range("j2" & ":" & "j" & hLin).Select
+ActiveSheet.Paste
+Selection.Copy
+Range("g2").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+Columns("j:j").Delete
+
+'incluir CC nos espacos em branco
+
+    Dim iLin As Integer
+    Dim fLin As Integer
+    
+    fLin = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    iLin = 1
+    
+    While iLin <> fLin
+   
+    If Cells(iLin, 2).Value = "" Then
+    Cells(iLin, 2).Value = "AVB_CONFERIR"
+
+    Else
+        iLin = iLin + 1
+    
+    End If
+    Wend
+ 
+'copiar para razao_2021
+Range("a2:i2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+Planilha2.Select
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'aplicar formulas
+Range("j3:s3").Copy
+
+'Dim Lin_i As String
+Dim lin_f As String
+
+'Lin_i = Cells(Rows.Count, 1).End(xlUp).Row + 1
+lin_f = Range("a2").End(xlDown).Row
+
+Range("j4" & ":" & "s" & lin_f).Select
+
+ActiveSheet.Paste
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'incluir T
+Range("x3").Copy
+Range("x4" & ":" & "x" & lin_f).Select
+ActiveSheet.Paste
+Application.CutCopyMode = False
+
+'limpar apoio
+Planilha6.Select
+Columns("A:i").Delete
+Planilha6.Visible = xlSheetHidden
+
+'fechar planilha base
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+ActiveSheet.AutoFilter.ShowAllData
+Application.CutCopyMode = False
+Application.DisplayAlerts = False
+ActiveWindow.Close
+
+Planilha5.Select
+Range("b5").Select
+
+MsgBox "AVISO: Razão importado com exito", vbInformation, "Resultado"
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub Importar_ARM()
+
+Application.ScreenUpdating = False
+
+'verificar quantidade de planilhas abertas
+If (Application.Workbooks.Count > 1) Then
+    MsgBox ("Para seguranca das suas informacoes FECHE as demais planilhas abertas")
+    Exit Sub
+    End If
+
+'Dim razao As Range
+Dim data As String
+data = Planilha5.Range("D8").Value
+
+'PlanilhaX.Unprotect Password:="Oz0321"
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+'tirar filtros
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+'limpar dados anteriores se já tiver valores importados
+If Planilha5.Range("a18") > "0" Then
+Planilha2.Select
+Range("a2").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Selection.AutoFilter Field:=10, Criteria1:="R_ARM" 'Filtrar origem
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+End If
+
+Planilha5.Select
+Range("D8").Copy
+
+'abrir planilha
+Workbooks.Open Filename:=Planilha5.Cells(18, 2)
+Application.DisplayAlerts = False 'desativar alertas
+
+'copiar informacoes do Razao origem
+Sheets("Conta Razão").Select 'seleciona o razao
+Range("ah1").Select
+Selection.PasteSpecial Paste:=xlPasteValues 'colar periodo para o filtro
+
+If ActiveSheet.FilterMode Then
+Range("a1").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+'contas necessárias CAPEX
+'1.2.0.2 - ativo tangível
+'1.2.0.3 - ativo intangível
+'1.2.0.4 - gastos de implantação
+'1.2.0.6 - direito mineral
+'9.3 - DESPESAS DE OUTROS PROJETOS
+
+'copiar as contas em TRES etapas devido o filtro não ser de valor exato da conta
+'01 ATIVOS
+Range("a1").Select
+Selection.AutoFilter
+Selection.AutoFilter Field:=2, Criteria1:=Array( _
+        "A.R.M.CNOP", "A.R.M.CPAPR", "A.R.M.CRVEX"), Operator:=xlFilterValues
+Selection.AutoFilter Field:=4, Criteria1:="<>*999*"
+Selection.AutoFilter Field:=12, Criteria1:="1.2.0.2" & "*", Operator:=xlOr, Criteria2:="1.2.0.3" & "*", Operator:=xlOr 'Filtrar codigo de contas
+Selection.AutoFilter Field:=16, Criteria1:=Range("ah1").Value 'Filtrar periodo
+Range("a1:ad1").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+'colar dados em apoio
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Planilha6.Visible = xlSheetVisible
+Planilha6.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'02 GASTOS E DIREITOS
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+Range("a1").Select
+Selection.AutoFilter Field:=4, Criteria1:="<>*999*"
+Selection.AutoFilter Field:=12, Criteria1:="1.2.0.4" & "*", Operator:=xlOr, Criteria2:="1.2.0.6" & "*", Operator:=xlOr 'Filtrar codigo de contas
+Range("a2:ad2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+'colar dados em apoio
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'03 DESPESAS 9.3
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+ActiveSheet.AutoFilter.ShowAllData
+Range("a1").Select
+Selection.AutoFilter Field:=12, Criteria1:="9.3*"
+Range("a2:ad2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+'colar dados em apoio
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'organizar dados em apoio
+Columns("A:I").Insert Shift:=xlToRight
+Columns("Y:Y").Cut Destination:=Columns("A:A") 'periodo
+Columns("K:K").Cut Destination:=Columns("B:B") 'cc
+Columns("M:M").Cut Destination:=Columns("C:C") 'cod item contabil
+Columns("N:N").Cut Destination:=Columns("D:D") 'desc item contabil
+Columns("W:W").Cut Destination:=Columns("E:E") 'cod conta
+Columns("X:X").Cut Destination:=Columns("F:F") 'desc da conta
+Columns("AB:AB").Cut Destination:=Columns("G:G") 'historico
+Columns("Ah:Ah").Cut Destination:=Columns("H:H") 'valor
+Columns("J:aZ").Delete
+
+Range("b1").Select
+Columns("b:b").Replace ".", ""
+Range("e1").Select
+Columns("e:e").Replace ".", ""
+
+'arrumar historico
+Dim hLin As Integer
+hLin = Cells(Rows.Count, 8).End(xlUp).Row + 1
+Range("I2").Select
+ActiveCell.FormulaR1C1 = "=TRIM(RC[-2])"
+Range("I2").Copy
+Range("i2" & ":" & "i" & hLin).Select
+ActiveSheet.Paste
+Selection.Copy
+Range("g2").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+Columns("i:i").Delete
+
+'incluir CC nos espacos em branco
+
+    Dim iLin As Integer
+    Dim fLin As Integer
+    
+    fLin = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    iLin = 1
+    
+    While iLin <> fLin
+   
+    If Cells(iLin, 2).Value = "" Then
+    Cells(iLin, 2).Value = "ARM_CONFERIR"
+
+    Else
+        iLin = iLin + 1
+    
+    End If
+    Wend
+ 
+'copiar o apoio para o razao_2021
+Range("a2:h2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+Planilha2.Select
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'aplicar formulas
+Range("j3:s3").Copy
+'Selection.Copy
+
+'Dim Lin_i As String
+Dim lin_f As String
+
+'Lin_i = Cells(Rows.Count, 1).End(xlUp).Row + 1
+lin_f = Range("a2").End(xlDown).Row
+
+Range("j4" & ":" & "s" & lin_f).Select
+
+ActiveSheet.Paste
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'incluir T
+Range("x3").Copy
+Range("x4" & ":" & "x" & lin_f).Select
+ActiveSheet.Paste
+Application.CutCopyMode = False
+
+'limpar apoio
+Planilha6.Select
+Columns("A:h").Delete
+Planilha6.Visible = xlSheetHidden
+
+'fechar planilha base
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+ActiveSheet.AutoFilter.ShowAllData
+Application.CutCopyMode = False
+Application.DisplayAlerts = False
+ActiveWindow.Close
+
+Planilha5.Select
+Range("b5").Select
+
+MsgBox "AVISO: Razão importado com exito", vbInformation, "Resultado"
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub Importar_SLM()
+
+Application.ScreenUpdating = False
+
+'verificar quantidade de planilhas abertas
+If (Application.Workbooks.Count > 1) Then
+    MsgBox ("Para seguranca das suas informacoes FECHE as demais planilhas abertas")
+    Exit Sub
+    End If
+
+'Dim razao As Range
+Dim data As String
+data = Planilha5.Range("D8").Value
+
+'PlanilhaX.Unprotect Password:="Oz0321"
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+    
+'retirar filtros
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+'limpar dados anteriores se já tiver valores importados
+If Planilha5.Range("a23") > "0" Then
+Planilha2.Select
+Range("a2").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Selection.AutoFilter Field:=9, Criteria1:="R_SLM" 'Filtrar origem
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+End If
+
+Planilha5.Select
+Range("D8").Copy
+
+'abrir planilha
+Workbooks.Open Filename:=Planilha5.Cells(23, 2)
+Application.DisplayAlerts = False 'desativar alertas
+
+'copiar informacoes do Razao origem
+Sheets("Conta Razão").Select 'seleciona o razao
+Range("ah1").Select
+Selection.PasteSpecial Paste:=xlPasteValues 'colar periodo para o filtro
+
+If ActiveSheet.FilterMode Then
+Range("a1").Select
+ActiveSheet.AutoFilter.ShowAllData 'limpa todos os filtros da planilha
+End If
+
+'contas necessárias CAPEX
+'1.2.0.2 - ativo tangível
+'1.2.0.3 - ativo intangível
+'1.2.0.4 - gastos de implantação
+'1.2.0.6 - direito mineral
+
+'copiar as contas em DOIS etapas devido o filtro não ser de valor exato da conta
+'01 ATIVOS
+Range("a1").Select
+Selection.AutoFilter
+Selection.AutoFilter Field:=2, Criteria1:="S.L.M.CNOP", Operator:=xlOr, Criteria2:="S.L.M.CCAPO"
+Selection.AutoFilter Field:=4, Criteria1:="<>*999*"
+Selection.AutoFilter Field:=12, Criteria1:="1.2.0.2" & "*", Operator:=xlOr, Criteria2:="1.2.0.3" & "*", Operator:=xlOr 'Filtrar codigo de contas
+Selection.AutoFilter Field:=16, Criteria1:=Range("ah1").Value 'Filtrar periodo
+Range("a1:ad1").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+'colar dados em apoio
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Planilha6.Visible = xlSheetVisible
+Planilha6.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'02 GASTOS E DIREITOS
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+Range("a1").Select
+Selection.AutoFilter Field:=4, Criteria1:="<>*999*"
+Selection.AutoFilter Field:=12, Criteria1:="1.2.0.4" & "*", Operator:=xlOr, Criteria2:="1.2.0.6" & "*", Operator:=xlOr 'Filtrar codigo de contas
+Range("a2:ad2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+'colar dados em apoio
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'organizar razao
+Columns("A:I").Insert Shift:=xlToRight
+Columns("Y:Y").Cut Destination:=Columns("A:A") 'periodo
+Columns("K:K").Cut Destination:=Columns("B:B") 'cc
+Columns("M:M").Cut Destination:=Columns("C:C") 'cod item contabil
+Columns("N:N").Cut Destination:=Columns("D:D") 'desc item contabil
+Columns("W:W").Cut Destination:=Columns("E:E") 'cod conta
+Columns("X:X").Cut Destination:=Columns("F:F") 'desc da conta
+Columns("AB:AB").Cut Destination:=Columns("G:G") 'historico
+Columns("AH:AH").Cut Destination:=Columns("H:H") 'valor
+Columns("J:aZ").Delete
+
+Range("b1").Select
+Columns("b:b").Replace ".", ""
+Range("e1").Select
+Columns("e:e").Replace ".", ""
+
+'arrumar historico
+Dim hLin As Integer
+hLin = Cells(Rows.Count, 8).End(xlUp).Row + 1
+Range("I2").Select
+ActiveCell.FormulaR1C1 = "=TRIM(RC[-2])"
+Range("I2").Copy
+Range("i2" & ":" & "i" & hLin).Select
+ActiveSheet.Paste
+Selection.Copy
+Range("g2").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+Columns("i:i").Delete
+
+'incluir CC nos espacos em branco
+
+    Dim iLin As Integer
+    Dim fLin As Integer
+    
+    fLin = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    iLin = 1
+    
+    While iLin <> fLin
+   
+    If Cells(iLin, 2).Value = "" Then
+    Cells(iLin, 2).Value = "SLM_CONFERIR"
+
+    Else
+        iLin = iLin + 1
+    
+    End If
+    Wend
+
+
+'copiar para razao_2021
+Range("a2:h2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+Planilha2.Select
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'aplicar formulas
+Range("j3:s3").Copy
+'Selection.Copy
+
+'Dim Lin_i As String
+Dim lin_f As String
+
+'Lin_i = Cells(Rows.Count, 1).End(xlUp).Row + 1
+lin_f = Range("a2").End(xlDown).Row
+
+Range("j4" & ":" & "s" & lin_f).Select
+
+ActiveSheet.Paste
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'incluir T
+Range("x3").Copy
+Range("x4" & ":" & "x" & lin_f).Select
+ActiveSheet.Paste
+Application.CutCopyMode = False
+
+'limpar apoio
+Planilha6.Select
+Columns("A:h").Delete
+Planilha6.Visible = xlSheetHidden
+
+'fechar planilha base
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (razao)
+ActiveSheet.AutoFilter.ShowAllData
+Application.CutCopyMode = False
+Application.DisplayAlerts = False
+ActiveWindow.Close
+
+Planilha5.Select
+Range("b5").Select
+
+MsgBox "AVISO: Razão importado com exito", vbInformation, "Resultado"
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub Importar_ACG()
+
+Application.ScreenUpdating = False
+
+'verificar quantidade de planilhas abertas
+If (Application.Workbooks.Count > 1) Then
+    MsgBox ("Para seguranca das suas informacoes FECHE as demais planilhas abertas")
+    Exit Sub
+    End If
+
+'Dim razao As Range
+Dim data As String
+data = Planilha5.Range("D8").Value
+
+'PlanilhaX.Unprotect Password:="Oz0321"
+
+'limpa todos os filtros da planilha
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData
+End If
+
+'limpar dados anteriores se já tiver valores importados
+If Planilha5.Range("a28") > "0" Then
+Planilha2.Select
+Range("a2").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Selection.AutoFilter Field:=9, Criteria1:="R_ACG" 'Filtrar origem
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+End If
+
+'abrir planilha balancete
+Workbooks.Open Filename:=Planilha5.Cells(28, 2)
+Application.DisplayAlerts = False 'desativar alertas
+
+'copiar informacoes do balancete origem
+Columns("A:I").Copy
+
+'colar dados em Mask
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Planilha1.Visible = xlSheetVisible
+Planilha1.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'copiar mask para apoio
+Columns("U:AH").Copy
+Planilha6.Visible = xlSheetVisible
+Planilha6.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+Columns("A:A").Insert Shift:=xlToRight
+Columns("E:E").Cut Destination:=Columns("A:A") 'copia periodo para primeira coluna
+Columns("C:D").Insert Shift:=xlToRight
+Columns("G:I").Delete
+Columns("I:I").Cut Destination:=Columns("C:C") 'copiar item contabil
+Columns("H:M").Delete
+Range("b1").Select
+Columns("b:b").Replace ".", ""
+Range("e1").Select
+Columns("e:e").Replace ".", ""
+
+'incluir CC nos espacos em branco ACGCJBEX
+
+    Dim iLin As Integer
+    Dim fLin As Integer
+    
+    fLin = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    iLin = 1
+    
+    While iLin <> fLin
+   
+    If Cells(iLin, 2).Value = "" Then
+    Cells(iLin, 2).Value = "ACG_CONFERIR"
+
+    Else
+        iLin = iLin + 1
+    
+    End If
+    Wend
+   
+'arrumar historico
+Dim hLin As Integer
+hLin = Cells(Rows.Count, 8).End(xlUp).Row + 1
+Range("I2").Select
+ActiveCell.FormulaR1C1 = "=TRIM(RC[-2])"
+Range("I2").Copy
+Range("i2" & ":" & "i" & hLin).Select
+ActiveSheet.Paste
+Selection.Copy
+Range("g2").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+Columns("i:i").Delete
+
+'fechar planilha base
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (balancete)
+Application.CutCopyMode = False
+Application.DisplayAlerts = False
+ActiveWindow.Close
+
+'copiar informacoes para o razao
+Planilha6.Select
+Range("a1").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Range("a2:h2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+
+Planilha2.Select
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues '$$$$$$
+Application.CutCopyMode = False
+
+'aplicar formulas
+Range("j3:s3").Copy
+'Selection.Copy
+
+'Dim Lin_i As String
+Dim lin_f As String
+
+'Lin_i = Cells(Rows.Count, 1).End(xlUp).Row + 1
+lin_f = Range("a2").End(xlDown).Row
+
+Range("j4" & ":" & "s" & lin_f).Select
+
+ActiveSheet.Paste
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'incluir T
+Range("x3").Copy
+Range("x4" & ":" & "x" & lin_f).Select
+ActiveSheet.Paste
+Application.CutCopyMode = False
+
+'limpar mask
+Planilha1.Select
+Columns("A:I").Select
+Selection.ClearContents
+Planilha1.Visible = xlSheetHidden
+
+'limpar apoio
+Planilha6.Select
+Columns("A:z").Delete
+Planilha6.Visible = xlSheetHidden
+
+Planilha5.Select
+Range("b5").Select
+
+MsgBox "AVISO: Razão importado com exito", vbInformation, "Resultado"
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub Importar_MCT()
+
+Application.ScreenUpdating = False
+
+'verificar quantidade de planilhas abertas
+If (Application.Workbooks.Count > 1) Then
+    MsgBox ("Para seguranca das suas informacoes FECHE as demais planilhas abertas")
+    Exit Sub
+    End If
+
+'Dim razao As Range
+Dim data As String
+data = Planilha5.Range("D8").Value
+
+'PlanilhaX.Unprotect Password:="Oz0321"
+
+'limpa todos os filtros da planilha
+Planilha2.Select
+If ActiveSheet.FilterMode Then
+Range("a2").Select
+ActiveSheet.AutoFilter.ShowAllData
+End If
+
+'limpar dados anteriores se já tiver valores importados
+If Planilha5.Range("a33") > "0" Then
+Planilha2.Select
+Range("a2").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Selection.AutoFilter Field:=9, Criteria1:="R_MCT" 'Filtrar origem
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+End If
+
+'falta incluir o senao para caso de a33 = 0
+
+'abrir planilha balancete
+Workbooks.Open Filename:=Planilha5.Cells(33, 2)
+Application.DisplayAlerts = False 'desativar alertas
+
+'copiar informacoes do balancete origem
+Columns("A:I").Copy
+
+'colar dados em Mask
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (CAPEX)
+Planilha1.Visible = xlSheetVisible
+Planilha1.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+
+'copiar mask para apoio
+Columns("U:AH").Copy
+Planilha6.Visible = xlSheetVisible
+Planilha6.Select
+Range("a1").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Columns("A:A").Insert Shift:=xlToRight
+Columns("E:E").Cut Destination:=Columns("A:A") 'copia periodo para primeira coluna
+Columns("C:D").Insert Shift:=xlToRight
+Columns("G:I").Delete
+Columns("I:I").Cut Destination:=Columns("C:C") 'copiar item contabil
+Columns("H:M").Delete
+Range("b1").Select
+Columns("b:b").Replace ".", ""
+Range("e1").Select
+Columns("e:e").Replace ".", ""
+
+'incluir CC nos espacos em branco
+
+    Dim iLin As Integer
+    Dim fLin As Integer
+    
+    fLin = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    iLin = 1
+    
+    While iLin <> fLin
+   
+    If Cells(iLin, 2).Value = "" Then
+    Cells(iLin, 2).Value = "MCT_CONFERIR"
+
+    Else
+        iLin = iLin + 1
+    
+    End If
+    Wend
+ 
+'arrumar historico
+Dim hLin As Integer
+hLin = Cells(Rows.Count, 8).End(xlUp).Row + 1
+Range("I2").Select
+ActiveCell.FormulaR1C1 = "=TRIM(RC[-2])"
+Range("I2").Copy
+Range("i2" & ":" & "i" & hLin).Select
+ActiveSheet.Paste
+Selection.Copy
+Range("g2").Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+Columns("i:i").Delete
+
+'fechar planilha base
+ActiveWindow.ActivateNext 'seleciona a proxima planilha (balancete)
+Application.CutCopyMode = False
+Application.DisplayAlerts = False
+ActiveWindow.Close
+
+'copiar informacoes para o razao
+Planilha6.Select
+Range("a1").Select
+Selection.AutoFilter Field:=1, Criteria1:=data 'Filtrar periodo
+Range("a2:h2").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.Copy
+Planilha2.Select
+Range("a100000").End(xlUp).Select
+ActiveCell.Offset(1, 0).Select
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'aplicar formulas
+Range("j3:s3").Copy
+'Selection.Copy
+
+'Dim Lin_i As String
+Dim lin_f As String
+
+'Lin_i = Cells(Rows.Count, 1).End(xlUp).Row + 1
+lin_f = Range("a2").End(xlDown).Row
+
+Range("j4" & ":" & "s" & lin_f).Select
+
+ActiveSheet.Paste
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues
+Application.CutCopyMode = False
+
+'incluir T
+Range("x3").Copy
+Range("x4" & ":" & "x" & lin_f).Select
+ActiveSheet.Paste
+Application.CutCopyMode = False
+
+'limpar mask
+Planilha1.Select
+Columns("A:I").Select
+Selection.ClearContents
+Planilha1.Visible = xlSheetHidden
+
+'limpar apoio
+Planilha6.Select
+Columns("A:z").Delete
+Planilha6.Visible = xlSheetHidden
+
+Planilha5.Select
+Range("b5").Select
+
+MsgBox "AVISO: Razão importado com exito", vbInformation, "Resultado"
+
+Application.ScreenUpdating = True
+
+End Sub
+
