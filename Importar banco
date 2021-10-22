@@ -1,44 +1,3 @@
-Sub Excluir_empresa()
-
-'excluir origem
-
-Application.ScreenUpdating = False
-
-If Planilha5.Range("t12").Value = 0 Then
-
-MsgBox "Não existem valores cadastrados", vbCritical, "Resultado"
-
-Exit Sub
-End If
-
-Dim origem As String
-Dim mes As String
-Dim razao As Range
-
-origem = Planilha5.Range("s12").Value
-mes = Planilha5.Range("d8").Value
-Set razao = Planilha2.Range("a3").CurrentRegion
-
-Planilha2.Select
-Rows("3:100000").Select
-Selection.EntireRow.Hidden = False
-razao.AutoFilter Field:=1, Criteria1:=mes
-razao.AutoFilter Field:=10, Criteria1:=origem
-    
-Rows("3").Select
-Range(Selection, Selection.End(xlDown)).Select
-Selection.EntireRow.Delete
-ActiveSheet.AutoFilter.ShowAllData
-    
-Planilha5.Select
-Range("b3").Select
-    
-MsgBox "Valores excluídos com sucesso", vbInformation, "Resultado"
-    
-Application.ScreenUpdating = True
-
-End Sub
-
 Sub Selecao_AVB()
 'seta o caminho para importar o arquivo
 diretorio = Application.GetOpenFilename
@@ -1031,3 +990,43 @@ Application.ScreenUpdating = True
 
 End Sub
 
+Sub Excluir_empresa()
+
+'excluir origem
+
+Application.ScreenUpdating = False
+
+If Planilha5.Range("t12").Value = 0 Then
+
+MsgBox "Não existem valores cadastrados", vbCritical, "Resultado"
+
+Exit Sub
+End If
+
+Dim origem As String
+Dim mes As String
+Dim razao As Range
+
+origem = Planilha5.Range("s12").Value
+mes = Planilha5.Range("d8").Value
+Set razao = Planilha2.Range("a3").CurrentRegion
+
+Planilha2.Select
+Rows("3:100000").Select
+Selection.EntireRow.Hidden = False
+razao.AutoFilter Field:=1, Criteria1:=mes
+razao.AutoFilter Field:=10, Criteria1:=origem
+    
+Rows("3").Select
+Range(Selection, Selection.End(xlDown)).Select
+Selection.EntireRow.Delete
+ActiveSheet.AutoFilter.ShowAllData
+    
+Planilha5.Select
+Range("b3").Select
+    
+MsgBox "Valores excluídos com sucesso", vbInformation, "Resultado"
+    
+Application.ScreenUpdating = True
+
+End Sub
